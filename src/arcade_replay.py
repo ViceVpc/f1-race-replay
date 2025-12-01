@@ -55,6 +55,16 @@ class F1ReplayWindow(arcade.Window):
         self.frame_index = 0.0  # use float for fractional-frame accumulation
         self.paused = False
         self._tyre_textures = {}
+        self.total_laps = total_laps
+
+        # Rotation (degrees) to apply to the whole circuit around its centre
+        self.circuit_rotation = circuit_rotation
+        self._rot_rad = float(np.deg2rad(self.circuit_rotation)) if self.circuit_rotation else 0.0
+        self._cos_rot = float(np.cos(self._rot_rad))
+        self._sin_rot = float(np.sin(self._rot_rad))
+        self.finished_drivers = []
+        self.left_ui_margin = left_ui_margin
+        self.right_ui_margin = right_ui_margin
 
         # Import the tyre textures from the images/tyres folder (all files)
         tyres_folder = os.path.join("images", "tyres")
@@ -568,7 +578,8 @@ class F1ReplayWindow(arcade.Window):
         else:
             self.selected_driver = new_selection
 
-def run_arcade_replay(frames, track_statuses, example_lap, drivers, title, playback_speed=1.0, driver_colors=None):
+def run_arcade_replay(frames, track_statuses, example_lap, drivers, title,
+                      playback_speed=1.0, driver_colors=None, circuit_rotation=0.0, total_laps=None):
     window = F1ReplayWindow(
         frames=frames,
         track_statuses=track_statuses,
@@ -576,6 +587,8 @@ def run_arcade_replay(frames, track_statuses, example_lap, drivers, title, playb
         drivers=drivers,
         playback_speed=playback_speed,
         driver_colors=driver_colors,
-        title=title
+        title=title,
+        total_laps=total_laps,
+        circuit_rotation=circuit_rotation,
     )
     arcade.run()
