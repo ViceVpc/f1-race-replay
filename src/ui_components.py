@@ -385,7 +385,20 @@ class DriverInfoComponent(BaseComponent):
         # stats
         speed_text = f"Speed: {driver_pos.get('speed',0):.1f} km/h"
         gear_text = f"Gear: {driver_pos.get('gear',0)}"
-        drs_text = f"DRS: {driver_pos.get('drs','-')}"
+
+        drs_status = "off"
+        drs_value = driver_pos.get('drs', 0)
+        if drs_value in [0, 1]:
+            drs_status = "Off"
+        elif drs_value == 8:
+            drs_status = "Eligible"
+        elif drs_value in [10, 12, 14]:
+            drs_status = "On"
+        else:
+            drs_status = "Unknown"
+        
+        drs_text = f"DRS: {drs_status}"
+
         lines = [speed_text, gear_text, drs_text, f"Current Lap: {driver_pos.get('lap',1)}"]
         for i, ln in enumerate(lines):
             arcade.Text(ln, info_x + 10, info_y - 20 - (i * 25), arcade.color.WHITE, 14, anchor_x="left", anchor_y="center").draw()
