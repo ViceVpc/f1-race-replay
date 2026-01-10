@@ -1520,37 +1520,47 @@ class RaceControlsComponent(BaseComponent):
             self.hover_button = 'speed_decrease'
         else:
             self.hover_button = None
+        return False
     
     def on_mouse_press(self, window, x: float, y: float, button: int, modifiers: int):
         """Handle button clicks."""
         if self._point_in_rect(x, y, self.rewind_rect):
-            # Rewind 10 frames
-            if hasattr(window, 'frame_index'):
+            # Update: Support hold-to-rewind
+            if hasattr(window, 'is_rewinding'):
+                window.was_paused_before_hold = window.paused
+                window.is_rewinding = True
+                window.paused = True
+            elif hasattr(window, 'frame_index'):
                 window.frame_index = int(max(0, window.frame_index - 10))
             return True
         elif self._point_in_rect(x, y, self.play_pause_rect):
-            # Toggle pause
             if hasattr(window, 'paused'):
                 window.paused = not window.paused
             return True
         elif self._point_in_rect(x, y, self.forward_rect):
-            # Forward 10 frames
-            if hasattr(window, 'frame_index') and hasattr(window, 'n_frames'):
+            # Update: Support hold-to-forward
+            if hasattr(window, 'is_forwarding'):
+                window.was_paused_before_hold = window.paused
+                window.is_forwarding = True
+                window.paused = True
+            elif hasattr(window, 'frame_index') and hasattr(window, 'n_frames'):
                 window.frame_index = int(min(window.n_frames - 1, window.frame_index + 10))
             return True
-        elif self._point_in_rect(x, y,self.speed_increase_rect):
-            # Increase speed
+        elif self._point_in_rect(x, y, self.speed_increase_rect):
             if hasattr(window, 'playback_speed'):
+                # FIX: Use index lookup to increment speed.
                 if window.playback_speed < max(self.PLAYBACK_SPEEDS):
                     current_index = self.PLAYBACK_SPEEDS.index(window.playback_speed)
                     window.playback_speed = self.PLAYBACK_SPEEDS[min(current_index + 1, len(self.PLAYBACK_SPEEDS) - 1)]
+                    self.flash_button('speed_increase')
             return True
-        elif self._point_in_rect(x, y,self.speed_decrease_rect):
-            # Decrease speed
+        elif self._point_in_rect(x, y, self.speed_decrease_rect):
             if hasattr(window, 'playback_speed'):
+                # FIX: Use index lookup to decrement speed safely within defined PLAYBACK_SPEEDS.
                 if window.playback_speed > min(self.PLAYBACK_SPEEDS):
                     current_index = self.PLAYBACK_SPEEDS.index(window.playback_speed)
                     window.playback_speed = self.PLAYBACK_SPEEDS[max(0, current_index - 1)]
+                    self.flash_button('speed_decrease')
             return True
         return False
     
