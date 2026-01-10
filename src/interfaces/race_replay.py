@@ -455,7 +455,7 @@ class F1RaceReplayWindow(arcade.Window):
     def on_update(self, delta_time: float):
         self.race_controls_comp.on_update(delta_time)
         
-        seek_speed = 3.0 # Multiplier for seeking speed
+        seek_speed = 3.0 * max(1.0, self.playback_speed) # Multiplier for seeking speed, scales with current playback speed
         if self.is_rewinding:
             self.frame_index = max(0.0, self.frame_index - delta_time * FPS * seek_speed)
             self.race_controls_comp.flash_button('rewind')
